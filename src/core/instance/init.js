@@ -90,8 +90,21 @@ export function initInternalComponent (vm: Component, options: InternalComponent
   }
 }
 
+// 继承下上层组件所有的 
+/**
+ * 1. 注册的component
+ * 2. 注册的filter
+ * 3. 注册的自定义指令
+ */
 export function resolveConstructorOptions (Ctor: Class<Component>) {
   let options = Ctor.options
+  // VueComponent 的super属性，一直递归到顶层Vue函数
+  /**
+   * a = Vue.extend({})
+   * a.super === Vue
+   * b = a.extend({})
+   * b.super === a
+   */
   if (Ctor.super) {
     const superOptions = resolveConstructorOptions(Ctor.super)
     const cachedSuperOptions = Ctor.superOptions

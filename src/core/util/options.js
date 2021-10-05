@@ -271,6 +271,7 @@ const defaultStrat = function (parentVal: any, childVal: any): any {
  * Validate component names
  */
 function checkComponents (options: Object) {
+  // 局部组件注册后实例化时的检测
   for (const key in options.components) {
     validateComponentName(key)
   }
@@ -294,6 +295,13 @@ export function validateComponentName (name: string) {
 /**
  * Ensure all props option syntax are normalized into the
  * Object-based format.
+ * 组件格式化时的props参数，用于声明当前组件会接收到的prop参数
+ * 格式为数组或者对象
+ * 作用：规范化传入的参数props配置，统一转换为对象的形式
+ *  
+ * {
+ *  props: [] / {}
+ * }
  */
 function normalizeProps (options: Object, vm: ?Component) {
   const props = options.props
@@ -364,6 +372,7 @@ function normalizeDirectives (options: Object) {
   if (dirs) {
     for (const key in dirs) {
       const def = dirs[key]
+      // 自定义指令的简写形式 支持一个函数直接作为参数
       if (typeof def === 'function') {
         dirs[key] = { bind: def, update: def }
       }
@@ -384,16 +393,20 @@ function assertObjectType (name: string, value: any, vm: ?Component) {
 /**
  * Merge two option objects into a new one.
  * Core utility used in both instantiation and inheritance.
+ * 从上层拿到注册过的组件、filter、指令 合并新的options
+ * Vue.extends({})  --> 对应了child为函数的情况
  */
 export function mergeOptions (
   parent: Object,
   child: Object,
   vm?: Component
 ): Object {
+  // 检测局部注册的组件名称是否符合规定
   if (process.env.NODE_ENV !== 'production') {
     checkComponents(child)
   }
 
+  // options 支持定义为函数？   使用位置不同
   if (typeof child === 'function') {
     child = child.options
   }
@@ -406,10 +419,15 @@ export function mergeOptions (
   // but only if it is a raw options object that isn't
   // the result of another mergeOptions call.
   // Only merged options has the _base property.
+  // 没有_base  属性   说明是通过 new 构造传入的options对象，此时需要做这个处理 。。。。
+  // 有_base 属性  说明是一个组件构造函数
   if (!child._base) {
+    // extends 是单独的  组合parent和继承来的options为新的options
     if (child.extends) {
       parent = mergeOptions(parent, child.extends, vm)
     }
+    // mixins 是一个数组
+    // 组合所有混入的属性到options中
     if (child.mixins) {
       for (let i = 0, l = child.mixins.length; i < l; i++) {
         parent = mergeOptions(parent, child.mixins[i], vm)

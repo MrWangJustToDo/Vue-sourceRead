@@ -98,6 +98,7 @@ export function parseHTML (html, options) {
         }
 
         // Doctype:  为什么这几个方法的判断方式不一致。。。
+        // 没有结束标签   一个正则就可以匹配  所以直接这样处理
         const doctypeMatch = html.match(doctype)
         if (doctypeMatch) {
           // 直接跳过
@@ -162,6 +163,7 @@ export function parseHTML (html, options) {
         options.chars(text, index - text.length, index)
       }
     } else {
+      // 当匹配到的标签名字是 script/style时  会进入到这个部分进行匹配
       // 使用lastTag创建出对应的endTag的正则进行匹配
       let endTagLength = 0
       const stackedTag = lastTag.toLowerCase()
@@ -204,6 +206,7 @@ export function parseHTML (html, options) {
     html = html.substring(n)
   }
 
+  // 对于开始标签  可能带有属性也掯勒是单标签   统一使用一个函数进行处理
   function parseStartTag () {
     const start = html.match(startTagOpen)
     if (start) {
@@ -233,6 +236,13 @@ export function parseHTML (html, options) {
   }
 
   // 传入参数 进行解析  {tagName: "button", attrs: Array(2), start: 16, unarySlash: "" || "/", end: 58}
+  /**
+   *  0: [" ref='cool'", 'ref', '=', null, 'cool', null]
+   *  1: [' style="color: red"', 'style', '=', 'color: red', null, null]
+   *  2: [" @click.capture='click'", '@click.capture', '=', null, 'click', null]
+   *  3: [" data-cool='cool'", 'data-cool', '=', null, 'cool', null]
+   *  4: [" class='cool'", 'class', '=', null, 'cool', null]
+   */
   function handleStartTag (match) {
     const tagName = match.tagName
     // 单标签元素标记
