@@ -41,6 +41,7 @@ if (process.env.NODE_ENV !== 'production') {
     const isBuiltInModifier = makeMap('stop,prevent,self,ctrl,shift,alt,meta,exact')
     config.keyCodes = new Proxy(config.keyCodes, {
       set (target, key, value) {
+        // 禁止对一些key绑定进行修改
         if (isBuiltInModifier(key)) {
           warn(`Avoid overwriting built-in modifier in config.keyCodes: .${key}`)
           return false
@@ -79,6 +80,7 @@ if (process.env.NODE_ENV !== 'production') {
     if (hasProxy) {
       // determine which proxy handler to use
       const options = vm.$options
+      // 预编译才有的内容  直接是render函数
       const handlers = options.render && options.render._withStripped
         ? getHandler
         : hasHandler

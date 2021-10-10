@@ -33,6 +33,10 @@ export function initLifecycle (vm: Component) {
   const options = vm.$options
 
   // locate first non-abstract parent
+  /**
+   * 抽象父级组件，不会渲染出东西的组件？？
+   * component   slot  ？？
+   */
   let parent = options.parent
   if (parent && !options.abstract) {
     while (parent.$options.abstract && parent.$parent) {
@@ -41,6 +45,7 @@ export function initLifecycle (vm: Component) {
     parent.$children.push(vm)
   }
 
+  // 做一些属性的初始化
   vm.$parent = parent
   vm.$root = parent ? parent.$root : vm
 

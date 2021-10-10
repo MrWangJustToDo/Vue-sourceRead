@@ -33,7 +33,9 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
+  // 是数组或者普通变量
   if (Array.isArray(data) || isPrimitive(data)) {
+    // 交换数据位置 ??? 
     normalizationType = children
     children = data
     data = undefined
@@ -51,6 +53,7 @@ export function _createElement (
   children?: any,
   normalizationType?: number
 ): VNode | Array<VNode> {
+  // 这两种情况都还没有遇到过   暂时不清楚是什么usage
   if (isDef(data) && isDef((data: any).__ob__)) {
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
@@ -80,6 +83,7 @@ export function _createElement (
     }
   }
   // support single function children as default scoped slot
+  // 这个也暂时不清楚
   if (Array.isArray(children) &&
     typeof children[0] === 'function'
   ) {

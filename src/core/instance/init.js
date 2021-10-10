@@ -35,6 +35,7 @@ export function initMixin (Vue: Class<Component>) {
       // internal component options needs special treatment.
       initInternalComponent(vm, options)
     } else {
+      // 组合所有继承的组件声明，指令声明等  到组件实例的$options上
       vm.$options = mergeOptions(
         resolveConstructorOptions(vm.constructor),
         options || {},
@@ -42,6 +43,7 @@ export function initMixin (Vue: Class<Component>) {
       )
     }
     /* istanbul ignore else */
+    // 开发环境使用这个，检测渲染中使用到的数据是否已经注册过   否则给出警告
     if (process.env.NODE_ENV !== 'production') {
       initProxy(vm)
     } else {

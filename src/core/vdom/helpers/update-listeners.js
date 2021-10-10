@@ -19,6 +19,10 @@ const normalizeEvent = cached((name: string): {
   handler?: Function,
   params?: Array<any>
 } => {
+  // 处理事件修饰符前缀  这个实在编译之后才会有的吧
+  /**
+   * row: @change.passive.once='foo' --> compile &~change
+   */
   const passive = name.charAt(0) === '&'
   name = passive ? name.slice(1) : name
   const once = name.charAt(0) === '~' // Prefixed last, checked first
@@ -74,12 +78,14 @@ export function updateListeners (
         vm
       )
     } else if (isUndef(old)) {
+      // 这个地方就是对应不同函数写法吗 foo  /  foo($event)
       if (isUndef(cur.fns)) {
         cur = on[name] = createFnInvoker(cur, vm)
       }
       if (isTrue(event.once)) {
         cur = on[name] = createOnceHandler(event.name, cur, event.capture)
       }
+      // 这个add方法有点奇怪,还有别的调用地方???
       add(event.name, cur, event.capture, event.passive, event.params)
     } else if (cur !== old) {
       old.fns = cur

@@ -13,6 +13,7 @@ export function initEvents (vm: Component) {
   vm._events = Object.create(null)
   vm._hasHookEvent = false
   // init parent attached events
+  // 这个属性可能是Vue内部调用创建的
   const listeners = vm.$options._parentListeners
   if (listeners) {
     updateComponentListeners(vm, listeners)
@@ -32,8 +33,10 @@ function remove (event, fn) {
 function createOnceHandler (event, fn) {
   const _target = target
   return function onceHandler () {
+    // once 的函数没有自动异常捕获 ....
     const res = fn.apply(null, arguments)
     if (res !== null) {
+      // 触发了$off ...
       _target.$off(event, onceHandler)
     }
   }

@@ -33,6 +33,7 @@ export function handleError (err: Error, vm: any, info: string) {
   }
 }
 
+// 所有的方法调用好像都会被这个错误处理函数包裹 包括模板中的事件处理函数
 export function invokeWithErrorHandling (
   handler: Function,
   context: any,
