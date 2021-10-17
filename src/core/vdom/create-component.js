@@ -109,10 +109,13 @@ export function createComponent (
     return
   }
 
+  // 拿到最顶层的定义  对应Vue对象
   const baseCtor = context.$options._base
 
-  // plain options object: turn it into a constructor
+  // plain options object: turn it into a constructor   ctor是一个普通对象的情况  直接传递一个配置对象作为Vue的组件声明
+  // 可以在components配置声明是使用一个配置对象代替组件声明 
   if (isObject(Ctor)) {
+    // 当前作用域下声明的组件   按理说已经是一个组件了。。。  以防万一？？
     Ctor = baseCtor.extend(Ctor)
   }
 

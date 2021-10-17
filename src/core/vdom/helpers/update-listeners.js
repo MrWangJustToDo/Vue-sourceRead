@@ -21,7 +21,7 @@ const normalizeEvent = cached((name: string): {
 } => {
   // 处理事件修饰符前缀  这个实在编译之后才会有的吧
   /**
-   * row: @change.passive.once='foo' --> compile &~change
+   * row: @change.passive.once='foo' --> compile &~change --> 对象
    */
   const passive = name.charAt(0) === '&'
   name = passive ? name.slice(1) : name
@@ -43,6 +43,7 @@ export function createFnInvoker (fns: Function | Array<Function>, vm: ?Component
     if (Array.isArray(fns)) {
       const cloned = fns.slice()
       for (let i = 0; i < cloned.length; i++) {
+        // 包裹上错误处理
         invokeWithErrorHandling(cloned[i], null, arguments, vm, `v-on handler`)
       }
     } else {
@@ -72,6 +73,7 @@ export function updateListeners (
       cur = def.handler
       event.params = def.params
     }
+    // _parentListeners 中的事件对象的值为空   触发警告
     if (isUndef(cur)) {
       process.env.NODE_ENV !== 'production' && warn(
         `Invalid handler for event "${event.name}": got ` + String(cur),
@@ -79,13 +81,15 @@ export function updateListeners (
       )
     } else if (isUndef(old)) {
       // 这个地方就是对应不同函数写法吗 foo  /  foo($event)
+      // 为什么这么处理，因为cur可能是一个函数数组，这个方法将执行变为一个单独的函数？？
       if (isUndef(cur.fns)) {
         cur = on[name] = createFnInvoker(cur, vm)
       }
+      // 还是包裹了错误处理   为什么不使用$once呢
       if (isTrue(event.once)) {
         cur = on[name] = createOnceHandler(event.name, cur, event.capture)
       }
-      // 这个add方法有点奇怪,还有别的调用地方???
+      // 调用vm.$on
       add(event.name, cur, event.capture, event.passive, event.params)
     } else if (cur !== old) {
       old.fns = cur

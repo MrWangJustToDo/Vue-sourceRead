@@ -79,6 +79,7 @@ export const createEmptyVNode = (text: string = '') => {
 }
 
 export function createTextVNode (val: string | number) {
+  // 没有标记comment属性
   return new VNode(undefined, undefined, undefined, String(val))
 }
 

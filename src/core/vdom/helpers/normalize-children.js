@@ -45,12 +45,14 @@ function normalizeArrayChildren (children: any, nestedIndex?: string): Array<VNo
   let i, c, lastIndex, last
   for (i = 0; i < children.length; i++) {
     c = children[i]
+    // 如果c不存在或者是布尔值  跳过
     if (isUndef(c) || typeof c === 'boolean') continue
     lastIndex = res.length - 1
     last = res[lastIndex]
     //  nested
     if (Array.isArray(c)) {
       if (c.length > 0) {
+        // _1_1_1   从底层合并过来的
         c = normalizeArrayChildren(c, `${nestedIndex || ''}_${i}`)
         // merge adjacent text nodes
         if (isTextNode(c[0]) && isTextNode(last)) {

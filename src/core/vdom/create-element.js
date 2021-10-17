@@ -33,9 +33,8 @@ export function createElement (
   normalizationType: any,
   alwaysNormalize: boolean
 ): VNode | Array<VNode> {
-  // 是数组或者普通变量
+  // data应该是一个对象  如果是一个数组或者常量   则说明没有传递data 将这个值确定为children
   if (Array.isArray(data) || isPrimitive(data)) {
-    // 交换数据位置 ??? 
     normalizationType = children
     children = data
     data = undefined
@@ -46,8 +45,9 @@ export function createElement (
   return _createElement(context, tag, data, children, normalizationType)
 }
 
+// 还支持一个数组？。。。
 export function _createElement (
-  context: Component,
+  context: Component,  // context 一般代表创建调用这个方法的元素  因为vue中的组件作用域
   tag?: string | Class<Component> | Function | Object,
   data?: VNodeData,
   children?: any,
@@ -83,17 +83,29 @@ export function _createElement (
     }
   }
   // support single function children as default scoped slot
-  // 这个也暂时不清楚
   if (Array.isArray(children) &&
     typeof children[0] === 'function'
   ) {
+    // 这个场景也没有遇到过。。。
     data = data || {}
+    // 这是把children作为一个插槽内容
     data.scopedSlots = { default: children[0] }
+    // 清空原始的children
     children.length = 0
   }
   if (normalizationType === ALWAYS_NORMALIZE) {
+    // 对children进行flatten处理  合并相邻的文本节点
+    /**
+     * [Array(1), VNode, Array(1)]
+     *   Array(1)
+     *     VNode {tag: undefined, data: undefined, children: undefined, text: '测试输出 test-slot ', elm: undefined, …}
+     *   VNode {tag: undefined, data: undefined, children: undefined, text: ' ', elm: undefined, …}
+     *   Array(1)
+     *     VNode {tag: undefined, data: undefined, children: undefined, text: ' 默认插槽 ', elm: undefined, …}
+     */
     children = normalizeChildren(children)
   } else if (normalizationType === SIMPLE_NORMALIZE) {
+    // 简单flatten
     children = simpleNormalizeChildren(children)
   }
   let vnode, ns
@@ -113,6 +125,7 @@ export function _createElement (
         undefined, undefined, context
       )
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
+      // 从当前组件的作用域范围内找到定义的组件  这就是vue中使用组件比需要声明的原因
       // component
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
